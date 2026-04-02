@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EverCars — Front-End COGS Decomposition</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #f5f6f8; color: #2c3e50; padding: 40px 24px 60px; }
+
+  .chart { max-width: 820px; margin: 0 auto; position: relative; }
+
+  h1 { font-size: 1.25rem; font-weight: 600; color: #1a5276; margin-bottom: 4px; }
+  .subtitle { font-size: 0.82rem; color: #7f8c8d; margin-bottom: 32px; }
+
+  .row { display: flex; width: 100%; margin-bottom: 4px; }
+  .row-label { display: flex; width: 100%; margin-bottom: 4px; }
+  .row-label span {
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; font-weight: 600; color: #7f8c8d;
+  }
+
+  .box {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 18px 8px; text-align: center;
+    font-weight: 600; font-size: 0.88rem;
+    border-right: 2px solid #f5f6f8;
+    position: relative;
+  }
+  .box:last-child { border-right: none; }
+  .box small { display: block; font-weight: 400; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 2px; opacity: 0.7; }
+  .box .gaap { font-size: 0.62rem; font-weight: 500; margin-top: 4px; opacity: 0.65; font-style: italic; }
+
+  /* Clickable leaf boxes */
+  .clickable { cursor: pointer; transition: filter 0.15s, transform 0.15s; }
+  .clickable:hover { filter: brightness(0.94); transform: translateY(-1px); }
+  .clickable.active { outline: 3px solid #2c3e50; outline-offset: -3px; z-index: 2; }
+
+  /* Colors */
+  .l1 { background: #1a5276; color: #fff; border-radius: 6px 6px 0 0; }
+  .l2-landed { background: #2980b9; color: #fff; }
+  .l2-recon  { background: #27ae60; color: #fff; }
+  .l3-landed { background: #d6eaf8; color: #1a5276; }
+  .l3-recon  { background: #d5f5e3; color: #1e8449; }
+  .l4-landed { background: #eaf2f8; color: #1a5276; }
+  .l4-recon  { background: #eafaf1; color: #1e8449; }
+
+  /* Pop-out panel */
+  .panel-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.25); z-index: 10; }
+  .panel-overlay.open { display: flex; align-items: center; justify-content: center; }
+
+  .panel {
+    background: #fff; border-radius: 10px; box-shadow: 0 12px 40px rgba(0,0,0,0.18);
+    max-width: 480px; width: 90%; padding: 28px 28px 24px; position: relative;
+  }
+  .panel-close {
+    position: absolute; top: 12px; right: 16px; background: none; border: none;
+    font-size: 1.3rem; color: #95a5a6; cursor: pointer; line-height: 1;
+  }
+  .panel-close:hover { color: #2c3e50; }
+
+  .panel h2 { font-size: 1.05rem; font-weight: 700; margin-bottom: 16px; }
+  .panel h2 .tag { font-size: 0.65rem; font-weight: 600; padding: 2px 8px; border-radius: 10px; margin-left: 8px; vertical-align: middle; }
+  .tag-landed { background: #d6eaf8; color: #1a5276; }
+  .tag-recon { background: #d5f5e3; color: #1e8449; }
+
+  .panel-row { margin-bottom: 14px; }
+  .panel-row label { display: block; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.05em; color: #95a5a6; font-weight: 600; margin-bottom: 3px; }
+  .panel-row p { font-size: 0.88rem; color: #2c3e50; line-height: 1.5; }
+  .panel-row p.empty { color: #bdc3c7; font-style: italic; }
+
+  .footer { text-align: center; margin-top: 36px; font-size: 0.7rem; color: #b0b8bf; }
+</style>
+</head>
+<body>
+
+<div class="chart">
+  <h1>Front-End COGS — Cost Decomposition</h1>
+  <p class="subtitle">Each layer breaks down into the components directly below it — click any bottom-level box for details</p>
+
+  <!-- LEVEL 1 -->
+  <div class="row">
+    <div class="box l1" style="width:100%;">
+      Front-End COGS
+      <span class="gaap">Capitalized to inventory · recognized at sale</span>
+    </div>
+  </div>
+  <div class="row-label"><span style="width:100%;">=</span></div>
+
+  <!-- LEVEL 2 -->
+  <div class="row">
+    <div class="box l2-landed" style="width:50%;">
+      <small>Acquisition</small>
+      Landed Cost
+      <span class="gaap">Capitalize at purchase</span>
+    </div>
+    <div class="box l2-recon" style="width:50%;">
+      <small>Preparation</small>
+      Recon Expenses
+      <span class="gaap">Allocate to inventory</span>
+    </div>
+  </div>
+  <div class="row-label">
+    <span style="width:50%;">=</span>
+    <span style="width:50%;">=</span>
+  </div>
+
+  <!-- LEVEL 3 -->
+  <div class="row">
+    <div class="box l3-landed" style="width:16.667%;">Purchase<br>Price</div>
+    <div class="box l3-landed" style="width:16.667%;">Buyer's<br>Fee</div>
+    <div class="box l3-landed" style="width:16.667%;">Inbound<br>Transport</div>
+    <div class="box l3-recon" style="width:16.667%;">Direct<br>Costs</div>
+    <div class="box l3-recon" style="width:16.667%;">Direct<br>Labor</div>
+    <div class="box l3-recon" style="width:16.667%;">Overhead</div>
+  </div>
+  <div class="row-label">
+    <span style="width:16.667%;">=</span>
+    <span style="width:16.667%;">=</span>
+    <span style="width:16.667%;">=</span>
+    <span style="width:16.667%;">=</span>
+    <span style="width:16.667%;">=</span>
+    <span style="width:16.667%;">=</span>
+  </div>
+
+  <!-- LEVEL 4 -->
+  <div class="row">
+    <!-- Under Purchase Price -->
+    <div class="box l4-landed clickable" style="width:8.333%;" onclick="openPanel('purchased')" id="box-purchased">Purchased<br>Vehicles</div>
+    <div class="box l4-landed clickable" style="width:8.333%;" onclick="openPanel('tradeins')" id="box-tradeins">Trade-<br>Ins</div>
+    <!-- Under Buyer's Fee -->
+    <div class="box l4-landed clickable" style="width:16.667%;" onclick="openPanel('auctionfee')" id="box-auctionfee">Auction<br>Fee<span class="gaap">Auction only</span></div>
+    <!-- Under Inbound Transport -->
+    <div class="box l4-landed clickable" style="width:8.333%;" onclick="openPanel('auctiontr')" id="box-auctiontr">Auction-<br>Arranged</div>
+    <div class="box l4-landed clickable" style="width:8.333%;" onclick="openPanel('carrierdirect')" id="box-carrierdirect">Carrier<br>Direct</div>
+    <!-- Under Direct Costs -->
+    <div class="box l4-recon clickable" style="width:5.556%;" onclick="openPanel('sublet')" id="box-sublet">Sublet<br>Services</div>
+    <div class="box l4-recon clickable" style="width:5.556%;" onclick="openPanel('jitparts')" id="box-jitparts">JIT<br>Parts</div>
+    <div class="box l4-recon clickable" style="width:5.556%;" onclick="openPanel('invparts')" id="box-invparts">Inv.<br>Parts</div>
+    <!-- Under Direct Labor -->
+    <div class="box l4-recon clickable" style="width:8.333%;" onclick="openPanel('techs')" id="box-techs">Techni-<br>cians</div>
+    <div class="box l4-recon clickable" style="width:8.333%;" onclick="openPanel('porters')" id="box-porters">Porters /<br>Detailers</div>
+    <!-- Under Overhead -->
+    <div class="box l4-recon clickable" style="width:16.667%;" onclick="openPanel('overhead')" id="box-overhead">Allocated<br>Overhead<span class="gaap">Single pool</span></div>
+  </div>
+</div>
+
+<!-- POP-OUT OVERLAY -->
+<div class="panel-overlay" id="panelOverlay" onclick="closePanel(event)">
+  <div class="panel" onclick="event.stopPropagation()">
+    <button class="panel-close" onclick="closePanel()">&times;</button>
+    <h2 id="panelTitle"></h2>
+    <div class="panel-row"><label>Description</label><p id="panelDesc"></p></div>
+    <div class="panel-row"><label>Current Source System</label><p id="panelCurrent"></p></div>
+    <div class="panel-row"><label>Future Source System</label><p id="panelFuture"></p></div>
+  </div>
+</div>
+
+<div class="footer">EverCars — Front-End Cost Decomposition — April 2026</div>
+
+<script>
+const data = {
+  purchased: {
+    title: 'Purchased Vehicles',
+    tag: 'landed',
+    desc: 'Any vehicle purchased via any of the 5 acquisition channels.',
+    current: 'Acquisition Form in Ever Backend',
+    future: 'Paddock',
+    other: ''
+  },
+  tradeins: {
+    title: 'Trade-Ins',
+    tag: 'landed',
+    desc: 'Actual cash value (ACV) of trade-in vehicles — fair value of the vehicle independent of the deal.',
+    current: 'CDK, attached to deal record',
+    future: 'Paddock as a separate inventory record generated on delivery',
+    other: ''
+  },
+  auctionfee: {
+    title: 'Auction Fee',
+    tag: 'landed',
+    desc: 'Fee charged by the auction house to the buyer, typically a percentage of the purchase price. Capitalized as part of inventory cost.',
+    current: 'Acquisition Form in Ever Backend',
+    future: 'Paddock',
+    other: ''
+  },
+  auctiontr: {
+    title: 'Auction-Arranged Transport',
+    tag: 'landed',
+    desc: 'Inbound shipping arranged through the auction house, billed as a line item on the auction invoice. Settled as part of the auction payment.',
+    current: 'Acquisition Form in Ever Backend',
+    future: 'Paddock',
+    other: ''
+  },
+  carrierdirect: {
+    title: 'Carrier Direct Transport',
+    tag: 'landed',
+    desc: 'Inbound shipping arranged directly with a third-party carrier, billed on a separate carrier invoice. Separate payment from the vehicle purchase.',
+    current: 'Ramp invoice',
+    future: 'Paddock',
+    other: ''
+  },
+  sublet: {
+    title: 'Sublet Services',
+    tag: 'recon',
+    desc: 'Reconditioning work outsourced to third-party vendors — e.g. paintwork, PDR, specialty repairs. Billed per job, directly attributable to a specific VIN.',
+    current: 'Ramp Bill Pay or CC process (invoice or CC charge)',
+    future: 'Paddock',
+    other: ''
+  },
+  jitparts: {
+    title: 'JIT Parts',
+    tag: 'recon',
+    desc: 'Parts ordered just-in-time for a specific vehicle\'s reconditioning. Purchased and used without going through inventory — cost is directly assigned to the VIN.',
+    current: 'Ramp Bill Pay or CC process (invoice or CC charge)',
+    future: 'Paddock',
+    other: ''
+  },
+  invparts: {
+    title: 'Inventoried Parts',
+    tag: 'recon',
+    desc: 'Parts drawn from on-hand inventory for a vehicle\'s reconditioning, including chargers. Cost is based on the carrying value of the part when issued to the VIN.',
+    current: 'N/A — no tracking',
+    future: 'Repair 360',
+    other: ''
+  },
+  techs: {
+    title: 'Technicians',
+    tag: 'recon',
+    desc: 'Technician labor hours spent on vehicle reconditioning. Allocated to inventory on a per-unit basis.',
+    current: 'Manual, inaccurate allocation',
+    future: 'Repair 360',
+    other: ''
+  },
+  porters: {
+    title: 'Porters / Detailers',
+    tag: 'recon',
+    desc: 'Porter and detailer labor hours spent on vehicle preparation. Allocated to inventory on a per-unit basis.',
+    current: 'Manual, inaccurate allocation',
+    future: 'Repair 360',
+    other: ''
+  },
+  overhead: {
+    title: 'Allocated Overhead',
+    tag: 'recon',
+    desc: 'Indirect reconditioning costs — facility, shop supplies, equipment depreciation — allocated across all vehicles on a per-unit basis.',
+    current: 'Manual, inaccurate allocation',
+    future: 'TBD',
+    other: ''
+  }
+};
+
+let activeBox = null;
+
+function openPanel(key) {
+  const d = data[key];
+  const tagClass = d.tag === 'landed' ? 'tag-landed' : 'tag-recon';
+  const tagLabel = d.tag === 'landed' ? 'Landed Cost' : 'Recon';
+  document.getElementById('panelTitle').innerHTML = d.title + ' <span class="tag ' + tagClass + '">' + tagLabel + '</span>';
+  document.getElementById('panelDesc').textContent = d.desc;
+  document.getElementById('panelDesc').className = d.desc === 'To be filled in' ? 'empty' : '';
+  document.getElementById('panelCurrent').textContent = d.current;
+  document.getElementById('panelCurrent').className = d.current === 'To be filled in' ? 'empty' : '';
+  document.getElementById('panelFuture').textContent = d.future;
+  document.getElementById('panelFuture').className = d.future === 'To be filled in' ? 'empty' : '';
+  document.getElementById('panelOverlay').classList.add('open');
+
+  if (activeBox) activeBox.classList.remove('active');
+  activeBox = document.getElementById('box-' + key);
+  if (activeBox) activeBox.classList.add('active');
+}
+
+function closePanel(e) {
+  if (e && e.target !== document.getElementById('panelOverlay')) return;
+  document.getElementById('panelOverlay').classList.remove('open');
+  if (activeBox) { activeBox.classList.remove('active'); activeBox = null; }
+}
+// Also close on X button
+document.querySelector('.panel-close').addEventListener('click', function() {
+  document.getElementById('panelOverlay').classList.remove('open');
+  if (activeBox) { activeBox.classList.remove('active'); activeBox = null; }
+});
+</script>
+</body>
+</html>
