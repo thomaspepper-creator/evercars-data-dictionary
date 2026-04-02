@@ -8,42 +8,8 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #f5f6f8; color: #2c3e50; padding: 40px 24px 60px; }
 
-  .chart { max-width: 820px; margin: 0 auto; position: relative; }
-
   h1 { font-size: 1.25rem; font-weight: 600; color: #1a5276; margin-bottom: 4px; }
   .subtitle { font-size: 0.82rem; color: #7f8c8d; margin-bottom: 32px; }
-
-  .row { display: flex; width: 100%; margin-bottom: 4px; }
-  .row-label { display: flex; width: 100%; margin-bottom: 4px; }
-  .row-label span {
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.7rem; font-weight: 600; color: #7f8c8d;
-  }
-
-  .box {
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    padding: 18px 8px; text-align: center;
-    font-weight: 600; font-size: 0.88rem;
-    border-right: 2px solid #f5f6f8;
-    position: relative;
-  }
-  .box:last-child { border-right: none; }
-  .box small { display: block; font-weight: 400; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 2px; opacity: 0.7; }
-  .box .gaap { font-size: 0.62rem; font-weight: 500; margin-top: 4px; opacity: 0.65; font-style: italic; }
-
-  /* Clickable leaf boxes */
-  .clickable { cursor: pointer; transition: filter 0.15s, transform 0.15s; }
-  .clickable:hover { filter: brightness(0.94); transform: translateY(-1px); }
-  .clickable.active { outline: 3px solid #2c3e50; outline-offset: -3px; z-index: 2; }
-
-  /* Colors */
-  .l1 { background: #1a5276; color: #fff; border-radius: 6px 6px 0 0; }
-  .l2-landed { background: #2980b9; color: #fff; }
-  .l2-recon  { background: #27ae60; color: #fff; }
-  .l3-landed { background: #d6eaf8; color: #1a5276; }
-  .l3-recon  { background: #d5f5e3; color: #1e8449; }
-  .l4-landed { background: #eaf2f8; color: #1a5276; }
-  .l4-recon  { background: #eafaf1; color: #1e8449; }
 
   /* Pop-out panel */
   .panel-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.25); z-index: 10; }
@@ -70,79 +36,150 @@
   .panel-row p.empty { color: #bdc3c7; font-style: italic; }
 
   .footer { text-align: center; margin-top: 36px; font-size: 0.7rem; color: #b0b8bf; }
+
+  /* ── Source System Map ── */
+  .map-wrap { max-width: 980px; margin: 0 auto; }
+
+  .map-grid {
+    display: grid;
+    grid-template-columns: 80px 130px 1fr 1fr 1fr;
+    gap: 6px 8px;
+    align-items: stretch;
+  }
+
+  .map-hdr {
+    font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; color: #7f8c8d; padding: 0 0 8px;
+  }
+
+  .map-cell {
+    padding: 10px 14px; border-radius: 6px; font-size: 0.78rem; font-weight: 600;
+    display: flex; flex-direction: column; justify-content: center;
+    transition: opacity 0.15s;
+  }
+  .map-cell .sub { display: block; font-size: 0.65rem; font-weight: 400; opacity: 0.7; margin-top: 2px; }
+
+  .map-cell.landed { background: #d6eaf8; color: #1a5276; }
+  .map-cell.recon  { background: #d5f5e3; color: #1e8449; }
+
+  /* Category spans */
+  .cat-cell {
+    border-radius: 6px; display: flex; align-items: center; justify-content: center;
+    font-size: 0.78rem; font-weight: 700; text-align: center;
+    writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg);
+    letter-spacing: 0.03em; padding: 8px 4px;
+  }
+  .cat-landed { background: #2980b9; color: #fff; }
+  .cat-recon  { background: #27ae60; color: #fff; }
+
+  /* GAAP component spans */
+  .gaap-cell {
+    border-radius: 6px; display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 600; text-align: center; padding: 8px 6px;
+    line-height: 1.3;
+  }
+  .gaap-landed { background: #d6eaf8; color: #1a5276; }
+  .gaap-recon  { background: #d5f5e3; color: #1e8449; }
+
+  /* Clickable cost component cells */
+  .map-cell.clickable { cursor: pointer; }
+  .map-cell.clickable:hover { filter: brightness(0.92); transform: translateY(-1px); }
+
+  /* Source system boxes — each gets its own color */
+  .src-acq   { background: #f0e5ff; color: #6c3483; }
+  .src-cdk   { background: #fdebd0; color: #935116; }
+  .src-ramp  { background: #fadbd8; color: #922b21; }
+  .src-manual{ background: #fef9e7; color: #7d6608; }
+  .src-na    { background: #f2f3f4; color: #7f8c8d; }
+  .src-paddock { background: #e8d5f5; color: #6c3483; }
+  .src-r360  { background: #fdebd0; color: #935116; }
+  .src-tbd   { background: #f2f3f4; color: #7f8c8d; }
 </style>
 </head>
 <body>
 
-<div class="chart">
-  <h1>Front-End COGS — Cost Decomposition</h1>
-  <p class="subtitle">Each layer breaks down into the components directly below it — click any bottom-level box for details</p>
+<div class="map-wrap">
+  <h1>Front-End COGS — Cost Decomposition & Source Systems</h1>
+  <p class="subtitle">Click any operational cost component for details</p>
 
-  <!-- LEVEL 1 -->
-  <div class="row">
-    <div class="box l1" style="width:100%;">
-      Front-End COGS
-      <span class="gaap">Capitalized to inventory · recognized at sale</span>
-    </div>
+  <div style="margin-bottom:28px; padding:20px 24px; background:#fff; border-radius:8px; border-left:4px solid #1a5276; max-width:980px;">
+    <div style="font-size:0.82rem; font-weight:700; color:#1a5276; margin-bottom:8px;">Summary: Source System Consolidation</div>
+    <p style="font-size:0.8rem; color:#2c3e50; line-height:1.7; margin:0;">
+      Today, front-end cost data lives across <strong>7 disconnected sources</strong> — the Acquisition Form, CDK, Ramp, 3 separate Excel-based manual calculations, and one component with no tracking at all. This fragmentation makes it difficult to produce an accurate, timely GPU and creates reconciliation risk at close.
+    </p>
+    <p style="font-size:0.8rem; color:#2c3e50; line-height:1.7; margin:10px 0 0;">
+      Phase 1 consolidates these into <strong>2 primary systems</strong>: <strong>Paddock</strong> for all landed costs and <strong>Repair 360</strong> for reconditioning (direct costs, parts, and tech labor). Two items remain open — porter/detailer labor allocation (TBD) and overhead allocation (continues in Excel). Resolving these and building the reconciliation bridge back to cash in the accounting system are key follow-ups.
+    </p>
   </div>
-  <div class="row-label"><span style="width:100%;">=</span></div>
+  <div class="map-grid" id="mapGrid">
+    <!-- Header row -->
+    <div class="map-hdr">Cost Category</div>
+    <div class="map-hdr">GAAP Component</div>
+    <div class="map-hdr">Operational Cost Component</div>
+    <div class="map-hdr">Current Source</div>
+    <div class="map-hdr">Phase 1 Source *</div>
 
-  <!-- LEVEL 2 -->
-  <div class="row">
-    <div class="box l2-landed" style="width:50%;">
-      <small>Acquisition</small>
-      Landed Cost
-      <span class="gaap">Capitalize at purchase</span>
-    </div>
-    <div class="box l2-recon" style="width:50%;">
-      <small>Preparation</small>
-      Recon Expenses
-      <span class="gaap">Allocate to inventory</span>
-    </div>
-  </div>
-  <div class="row-label">
-    <span style="width:50%;">=</span>
-    <span style="width:50%;">=</span>
-  </div>
+    <!-- ── Landed Cost ── -->
+    <div class="cat-cell cat-landed" style="grid-row: span 5;">Landed Cost</div>
 
-  <!-- LEVEL 3 -->
-  <div class="row">
-    <div class="box l3-landed" style="width:16.667%;">Purchase<br>Price</div>
-    <div class="box l3-landed" style="width:16.667%;">Buyer's<br>Fee</div>
-    <div class="box l3-landed" style="width:16.667%;">Inbound<br>Transport</div>
-    <div class="box l3-recon" style="width:16.667%;">Direct<br>Costs</div>
-    <div class="box l3-recon" style="width:16.667%;">Direct<br>Labor</div>
-    <div class="box l3-recon" style="width:16.667%;">Overhead</div>
-  </div>
-  <div class="row-label">
-    <span style="width:16.667%;">=</span>
-    <span style="width:16.667%;">=</span>
-    <span style="width:16.667%;">=</span>
-    <span style="width:16.667%;">=</span>
-    <span style="width:16.667%;">=</span>
-    <span style="width:16.667%;">=</span>
-  </div>
+    <!-- Acquisition Price (spans 3: Purchased Vehicles, Trade-Ins, Auction Fee) -->
+    <div class="gaap-cell gaap-landed" style="grid-row: span 3;">Acquisition Price</div>
+    <div class="map-cell landed clickable" data-row="purchased" onclick="openPanel('purchased')">Purchased Vehicles</div>
+    <div class="map-cell src-acq" data-row="purchased">Acquisition Form<span class="sub">Ever Backend</span></div>
+    <div class="map-cell src-paddock" data-row="purchased">Paddock</div>
 
-  <!-- LEVEL 4 -->
-  <div class="row">
-    <!-- Under Purchase Price -->
-    <div class="box l4-landed clickable" style="width:8.333%;" onclick="openPanel('purchased')" id="box-purchased">Purchased<br>Vehicles</div>
-    <div class="box l4-landed clickable" style="width:8.333%;" onclick="openPanel('tradeins')" id="box-tradeins">Trade-<br>Ins</div>
-    <!-- Under Buyer's Fee -->
-    <div class="box l4-landed clickable" style="width:16.667%;" onclick="openPanel('auctionfee')" id="box-auctionfee">Auction<br>Fee<span class="gaap">Auction only</span></div>
-    <!-- Under Inbound Transport -->
-    <div class="box l4-landed clickable" style="width:8.333%;" onclick="openPanel('auctiontr')" id="box-auctiontr">Auction-<br>Arranged</div>
-    <div class="box l4-landed clickable" style="width:8.333%;" onclick="openPanel('carrierdirect')" id="box-carrierdirect">Carrier<br>Direct</div>
-    <!-- Under Direct Costs -->
-    <div class="box l4-recon clickable" style="width:5.556%;" onclick="openPanel('sublet')" id="box-sublet">Sublet<br>Services</div>
-    <div class="box l4-recon clickable" style="width:5.556%;" onclick="openPanel('jitparts')" id="box-jitparts">JIT<br>Parts</div>
-    <div class="box l4-recon clickable" style="width:5.556%;" onclick="openPanel('invparts')" id="box-invparts">Inv.<br>Parts</div>
-    <!-- Under Direct Labor -->
-    <div class="box l4-recon clickable" style="width:8.333%;" onclick="openPanel('techs')" id="box-techs">Techni-<br>cians</div>
-    <div class="box l4-recon clickable" style="width:8.333%;" onclick="openPanel('porters')" id="box-porters">Porters /<br>Detailers</div>
-    <!-- Under Overhead -->
-    <div class="box l4-recon clickable" style="width:16.667%;" onclick="openPanel('overhead')" id="box-overhead">Allocated<br>Overhead<span class="gaap">Single pool</span></div>
+    <div class="map-cell landed clickable" data-row="tradeins" onclick="openPanel('tradeins')">Trade-Ins</div>
+    <div class="map-cell src-cdk" data-row="tradeins">CDK<span class="sub">Deal Record</span></div>
+    <div class="map-cell src-paddock" data-row="tradeins">Paddock</div>
+
+    <div class="map-cell landed clickable" data-row="auctionfee" onclick="openPanel('auctionfee')">Auction Fee</div>
+    <div class="map-cell src-acq" data-row="auctionfee">Acquisition Form<span class="sub">Ever Backend</span></div>
+    <div class="map-cell src-paddock" data-row="auctionfee">Paddock</div>
+
+    <!-- Inbound Transport (spans 2) -->
+    <div class="gaap-cell gaap-landed" style="grid-row: span 2;">Inbound Transport</div>
+    <div class="map-cell landed clickable" data-row="auctiontr" onclick="openPanel('auctiontr')">Auction-Arranged</div>
+    <div class="map-cell src-acq" data-row="auctiontr">Acquisition Form<span class="sub">Ever Backend</span></div>
+    <div class="map-cell src-paddock" data-row="auctiontr">Paddock</div>
+
+    <div class="map-cell landed clickable" data-row="carrierdirect" onclick="openPanel('carrierdirect')">Carrier Direct</div>
+    <div class="map-cell src-ramp" data-row="carrierdirect">Ramp<span class="sub">Invoice</span></div>
+    <div class="map-cell src-paddock" data-row="carrierdirect">Paddock</div>
+
+    <!-- ── Recon Expenses ── -->
+    <div class="cat-cell cat-recon" style="grid-row: span 6;">Recon Expenses</div>
+
+    <!-- Direct Costs (spans 3) -->
+    <div class="gaap-cell gaap-recon" style="grid-row: span 3;">Direct Costs</div>
+    <div class="map-cell recon clickable" data-row="sublet" onclick="openPanel('sublet')">Sublet Services</div>
+    <div class="map-cell src-ramp" data-row="sublet">Ramp<span class="sub">Bill Pay / CC</span></div>
+    <div class="map-cell src-r360" data-row="sublet">Repair 360<span class="sub">Recon Cost Tracking</span></div>
+
+    <div class="map-cell recon clickable" data-row="jitparts" onclick="openPanel('jitparts')">JIT Parts</div>
+    <div class="map-cell src-ramp" data-row="jitparts">Ramp<span class="sub">Bill Pay / CC</span></div>
+    <div class="map-cell src-r360" data-row="jitparts">Repair 360<span class="sub">Recon Cost Tracking</span></div>
+
+    <div class="map-cell recon clickable" data-row="invparts" onclick="openPanel('invparts')">Inventoried Parts</div>
+    <div class="map-cell src-na" data-row="invparts">No Tracking<span class="sub">N/A</span></div>
+    <div class="map-cell src-r360" data-row="invparts">Repair 360<span class="sub">Parts Inventory</span></div>
+
+    <!-- Direct Labor (spans 2) -->
+    <div class="gaap-cell gaap-recon" style="grid-row: span 2;">Direct Labor</div>
+    <div class="map-cell recon clickable" data-row="techs" onclick="openPanel('techs')">Technicians</div>
+    <div class="map-cell src-manual" data-row="techs">Tech Labor Calc<span class="sub">Excel — manual</span></div>
+    <div class="map-cell src-r360" data-row="techs">Repair 360<span class="sub">Labor Tracking</span></div>
+
+    <div class="map-cell recon clickable" data-row="porters" onclick="openPanel('porters')">Porters / Detailers</div>
+    <div class="map-cell src-manual" data-row="porters">Porter / Detail Calc<span class="sub">Excel — manual</span></div>
+    <div class="map-cell src-tbd" data-row="porters">TBD<span class="sub">Method pending</span></div>
+
+    <!-- Overhead (spans 1) -->
+    <div class="gaap-cell gaap-recon">Overhead</div>
+    <div class="map-cell recon clickable" data-row="overhead" onclick="openPanel('overhead')">Allocated Overhead</div>
+    <div class="map-cell src-manual" data-row="overhead">Overhead Calc<span class="sub">Excel — manual</span></div>
+    <div class="map-cell src-manual" data-row="overhead">Excel-Based Allocation<span class="sub">Manual — carries forward</span></div>
   </div>
+  <p style="font-size:0.72rem; color:#7f8c8d; margin-top:18px; line-height:1.6; max-width:980px;">* Phase 1 systems become the source of truth for cost data per VIN. Additional integration is required to reconcile these costs back to cash disbursements in the accounting system (e.g. matching Repair 360 labor/parts records to Ramp payments and bank transactions).</p>
 </div>
 
 <!-- POP-OUT OVERLAY -->
@@ -205,7 +242,7 @@ const data = {
     tag: 'recon',
     desc: 'Reconditioning work outsourced to third-party vendors — e.g. paintwork, PDR, specialty repairs. Billed per job, directly attributable to a specific VIN.',
     current: 'Ramp Bill Pay or CC process (invoice or CC charge)',
-    future: 'Paddock',
+    future: 'Repair 360',
     other: ''
   },
   jitparts: {
@@ -213,7 +250,7 @@ const data = {
     tag: 'recon',
     desc: 'Parts ordered just-in-time for a specific vehicle\'s reconditioning. Purchased and used without going through inventory — cost is directly assigned to the VIN.',
     current: 'Ramp Bill Pay or CC process (invoice or CC charge)',
-    future: 'Paddock',
+    future: 'Repair 360',
     other: ''
   },
   invparts: {
@@ -237,7 +274,7 @@ const data = {
     tag: 'recon',
     desc: 'Porter and detailer labor hours spent on vehicle preparation. Allocated to inventory on a per-unit basis.',
     current: 'Manual, inaccurate allocation',
-    future: 'Repair 360',
+    future: 'TBD',
     other: ''
   },
   overhead: {
@@ -245,7 +282,7 @@ const data = {
     tag: 'recon',
     desc: 'Indirect reconditioning costs — facility, shop supplies, equipment depreciation — allocated across all vehicles on a per-unit basis.',
     current: 'Manual, inaccurate allocation',
-    future: 'TBD',
+    future: 'Excel-based allocation',
     other: ''
   }
 };
@@ -275,6 +312,22 @@ function closePanel(e) {
   document.getElementById('panelOverlay').classList.remove('open');
   if (activeBox) { activeBox.classList.remove('active'); activeBox = null; }
 }
+
+/* ── Source System Map — row highlight on hover ── */
+document.getElementById('mapGrid').addEventListener('mouseover', function(e) {
+  const cell = e.target.closest('.map-cell');
+  if (!cell || !cell.dataset.row) return;
+  const row = cell.dataset.row;
+  document.querySelectorAll('#mapGrid .map-cell').forEach(el => {
+    el.style.opacity = (el.dataset.row === row) ? '1' : '0.3';
+  });
+});
+document.getElementById('mapGrid').addEventListener('mouseout', function() {
+  document.querySelectorAll('#mapGrid .map-cell').forEach(el => {
+    el.style.opacity = '1';
+  });
+});
+
 // Also close on X button
 document.querySelector('.panel-close').addEventListener('click', function() {
   document.getElementById('panelOverlay').classList.remove('open');
